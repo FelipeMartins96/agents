@@ -22,7 +22,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--exp-name", type=str, default=os.path.basename(__file__).rstrip(".py"),
         help="the name of this experiment")
-    parser.add_argument("--gym-id", type=str, default="LunarLanderOri-v0",
+    parser.add_argument("--gym-id", type=str, default="LunarLanderContinuousStrat-v0",
         help="the id of the gym environment")
     parser.add_argument("--learning-rate", type=float, default=2.5e-4,
         help="the learning rate of the optimizer")
@@ -40,13 +40,13 @@ def parse_args():
         help="Frequency of saving videos, in episodes")    
     parser.add_argument("--track", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
         help="Log on wandb")
-    parser.add_argument("--continuous", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
+    parser.add_argument("--continuous", type=lambda x: bool(strtobool(x)), default=True, nargs="?", const=True,
         help="Whether to use continuous actions")
     parser.add_argument("--normalize", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
         help="Whether to Normalize observations and rewards")
 
     # Algorithm specific arguments
-    parser.add_argument("--num-envs", type=int, default=1,
+    parser.add_argument("--num-envs", type=int, default=6,
         help="the number of parallel game environments")
     parser.add_argument("--buffer-size", type=int, default=int(1e6),
         help="the replay memory buffer size")
@@ -79,7 +79,7 @@ def parse_args():
  
     # Arguments for DyLam
     parser.add_argument("--episodes-rb", type=int, default=10, help="number of episodes to calculate rb")
-    parser.add_argument("--num-rewards", type=int, default=10, help="number of rewards to lambdas")
+    parser.add_argument("--num-rewards", type=int, default=8, help="number of rewards to lambdas")
     parser.add_argument("--rew-tau", type=float, default=0.995, help="number of rewards to lambdas")
     parser.add_argument("--dylam", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True, help="Rather use DyLam or not")
     args = parser.parse_args()
@@ -89,14 +89,14 @@ def parse_args():
 def main(args):
     exp_name = f"SAC_DyLam_{int(time.time())}_{args.gym_id}"
     # project = args.gym_id.split("-")[0]
-    project = "Mujoco"
+    project = "dylam"
     if args.seed == 0:
         args.seed = int(time.time())
     args.method = "sac_dylam"
     wandb.init(
         project=project,
         name=exp_name,
-        entity="goncamateus",
+        entity="felipemartins",
         config=vars(args),
         monitor_gym=True,
         mode=None if args.track else "disabled",
@@ -128,7 +128,6 @@ def main(args):
         ],
         num_rewards=args.num_rewards
     )
-
     agent = SACStrat(
                         args,
                         envs.single_observation_space,
