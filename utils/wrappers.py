@@ -36,17 +36,15 @@ class RecordEpisodeStatistics(gym.Wrapper):
             action
         )
         # strat = not isinstance(rewards, float) or isinstance(rewards, int)
-        # if not strat:
-        #     self.episode_returns += rewards
-        # else:
-        if not self.is_vector_env:
-            rewards = rewards.reshape((1, -1))
-        self.episode_returns += (rewards * self.weights).sum()
-        self.episode_returns_strat += rewards * self.weights
-        # Changes based on the experiment
         if not self.stratified:
-            abc = self.weights/self.weights.sum()
-            rewards = (rewards * abc).sum()
+            self.episode_returns += rewards
+        else:
+            if not self.is_vector_env:
+                rewards = rewards.reshape((1, -1))
+            self.episode_returns += (rewards * self.weights).sum()
+            self.episode_returns_strat += rewards * self.weights
+        # Changes based on the experiment
+
         self.episode_lengths += 1
         if not self.is_vector_env:
             infos = [infos]
