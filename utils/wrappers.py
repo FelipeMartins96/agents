@@ -42,7 +42,6 @@ class RecordEpisodeStatistics(gym.Wrapper):
             if not self.is_vector_env:
                 rewards = rewards.reshape((1, -1))
             self.episode_returns += (rewards * self.weights).sum()
-            self.episode_returns_strat += rewards * self.weights
         # Changes based on the experiment
 
         self.episode_lengths += 1
@@ -60,18 +59,12 @@ class RecordEpisodeStatistics(gym.Wrapper):
                     "t": round(time.perf_counter() - self.t0, 6),
                 }
                 # if strat:
-                for j in range(self.num_rewards):
-                    episode_info["component_%d" % j] = self.episode_returns_strat[i, j]
-                self.return_strat_queue.append(episode_info["component_%d" % j])
                 infos[i]["episode"] = episode_info
                 self.return_queue.append(episode_return)
                 self.length_queue.append(episode_length)
                 self.episode_count += 1
                 self.episode_returns[i] = 0
                 self.episode_lengths[i] = 0
-                self.episode_returns_strat[i] = np.zeros(
-                    self.num_rewards, dtype=np.float32
-                )
         return (
             observations,
             rewards,

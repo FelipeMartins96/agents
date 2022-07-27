@@ -78,8 +78,6 @@ class LunarLanderStrat(LunarLander):
             strat_reward[3] = -m_power
             strat_reward[4] = -s_power
 
-        strat_reward = strat_reward / self.scale
-
         self.cumulative_reward_info["reward_Distance"] += strat_reward[0]
         self.cumulative_reward_info["reward_Speed"] += strat_reward[1]
         self.cumulative_reward_info["reward_Angle"] += strat_reward[2]
