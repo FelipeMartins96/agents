@@ -22,7 +22,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--exp-name", type=str, default=os.path.basename(__file__).rstrip(".py"),
         help="the name of this experiment")
-    parser.add_argument("--gym-id", type=str, default="LunarLanderContinuousOri-v0",
+    parser.add_argument("--gym-id", type=str, default="vssOri-v0",
         help="the id of the gym environment")
     parser.add_argument("--learning-rate", type=float, default=2.5e-4,
         help="the learning rate of the optimizer")
@@ -36,7 +36,7 @@ def parse_args():
         help="if toggled, cuda will be enabled by default")
     parser.add_argument("--capture-video", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
         help="weather to capture videos of the agent performances (check out `videos` folder)")
-    parser.add_argument("--video-freq", type=int, default=50,
+    parser.add_argument("--video-freq", type=int, default=100,
         help="Frequency of saving videos, in episodes")    
     parser.add_argument("--track", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
         help="Log on wandb")
@@ -46,7 +46,7 @@ def parse_args():
         help="Whether to Normalize observations and rewards")
 
     # Algorithm specific arguments
-    parser.add_argument("--num-envs", type=int, default=6,
+    parser.add_argument("--num-envs", type=int, default=10,
         help="the number of parallel game environments")
     parser.add_argument("--buffer-size", type=int, default=int(1e6),
         help="the replay memory buffer size")
