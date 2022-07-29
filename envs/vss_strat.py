@@ -80,6 +80,9 @@ class VSSStratEnv(VSSBaseEnv):
         self.ori_weights = np.array([0.6600, 0.3200, 0.0053, 0.0080])
         self.stratified = stratified
 
+        self.r_min = np.array([0.0, 0.0, -2.0, 0.0])
+        self.r_max = np.array([0.5, 1.0, -1.0, 1.0])
+
         if stratified:
             self.num_rewards = 4
 

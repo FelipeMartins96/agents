@@ -22,7 +22,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--exp-name", type=str, default=os.path.basename(__file__).rstrip(".py"),
         help="the name of this experiment")
-    parser.add_argument("--gym-id", type=str, default="LunarLanderContinuousStrat-v0",
+    parser.add_argument("--gym-id", type=str, default="vssStrat-v0",
         help="the id of the gym environment")
     parser.add_argument("--learning-rate", type=float, default=2.5e-4,
         help="the learning rate of the optimizer")
@@ -46,7 +46,7 @@ def parse_args():
         help="Whether to Normalize observations and rewards")
 
     # Algorithm specific arguments
-    parser.add_argument("--num-envs", type=int, default=6,
+    parser.add_argument("--num-envs", type=int, default=10,
         help="the number of parallel game environments")
     parser.add_argument("--buffer-size", type=int, default=int(1e6),
         help="the replay memory buffer size")
@@ -79,9 +79,9 @@ def parse_args():
  
     # Arguments for DyLam
     parser.add_argument("--episodes-rb", type=int, default=10, help="number of episodes to calculate rb")
-    parser.add_argument("--num-rewards", type=int, default=8, help="number of rewards to lambdas")
+    parser.add_argument("--num-rewards", type=int, default=4, help="number of rewards to lambdas")
     parser.add_argument("--rew-tau", type=float, default=0.995, help="number of rewards to lambdas")
-    parser.add_argument("--dylam", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True, help="Rather use DyLam or not")
+    parser.add_argument("--dylam", type=lambda x: bool(strtobool(x)), default=True, nargs="?", const=True, help="Rather use DyLam or not")
     args = parser.parse_args()
     return args
 
@@ -136,6 +136,11 @@ def main(args):
                     )
     start_time = time.time()
 
+    ori_weights = envs.envs[0].ori_weights/envs.envs[0].ori_weights.sum()
+    lambdas = torch.Tensor(ori_weights).to(agent.device)
+    r_max = torch.Tensor(envs.envs[0].r_max).to(agent.device)
+    r_min = torch.Tensor(envs.envs[0].r_min).to(agent.device)
+
     # TRY NOT TO MODIFY: training loop
     epi_rewards = np.zeros((args.num_envs, args.num_rewards))
     obs = envs.reset()
@@ -185,10 +190,6 @@ def main(args):
         # ALGO LOGIC: training.
         if global_step > args.learning_starts:
             # DyLam
-            ori_weights = envs.envs[0].ori_weights/envs.envs[0].ori_weights.sum()
-            lambdas = torch.Tensor(ori_weights).to(agent.device)
-            r_max = torch.Tensor([1, 1, -0.9]).to(agent.device)
-            r_min = torch.Tensor([0.2, 0, -1]).to(agent.device)
             rew_tau = args.rew_tau
             if agent.last_epi_rewards.can_do() and args.dylam:
                 rew_mean_t = torch.Tensor(agent.last_epi_rewards.mean()).to(agent.device)
